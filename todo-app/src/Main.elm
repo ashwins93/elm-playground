@@ -33,14 +33,19 @@ type alias Todo =
 
 
 type alias Model =
-    List Todo
+    { input : String
+    , todos : List Todo
+    }
 
 
 init : () -> ( Model, Cmd msg )
 init _ =
-    ( [ Todo 0 "Learn Elm" True
-      , Todo 1 "Take over the world" False
-      ]
+    ( { input = ""
+      , todos =
+            [ Todo 0 "Learn Elm" True
+            , Todo 1 "Take over the world" False
+            ]
+      }
     , Cmd.none
     )
 
@@ -51,6 +56,7 @@ init _ =
 
 type Msg
     = Show
+    | ToggleTodo Int
 
 
 update : Msg -> Model -> ( Model, Cmd msg )
@@ -58,6 +64,20 @@ update msg model =
     case msg of
         Show ->
             ( model, Cmd.none )
+
+        ToggleTodo id ->
+            ( { model | todos = List.map (toggleTodo id) model.todos }
+            , Cmd.none
+            )
+
+
+toggleTodo : Int -> Todo -> Todo
+toggleTodo id todo =
+    if id == todo.id then
+        Todo todo.id todo.action (not todo.completed)
+
+    else
+        todo
 
 
 
@@ -68,16 +88,16 @@ view : Model -> Html Msg
 view model =
     div [ class "container" ]
         [ h1 [ class "heading" ] [ text "elm todo" ]
-        , viewTodoList model
+        , viewTodoList model.todos
         ]
 
 
-viewTodoList : List Todo -> Html msg
+viewTodoList : List Todo -> Html Msg
 viewTodoList todos =
     ul [ class "todo-list" ] (List.map viewTodo todos)
 
 
-viewTodo : Todo -> Html msg
+viewTodo : Todo -> Html Msg
 viewTodo todo =
     let
         className =
@@ -87,7 +107,7 @@ viewTodo todo =
             else
                 "todo-item"
     in
-    li [ class className ] [ Html.span [] [ text todo.action ] ]
+    li [ class className, onClick (ToggleTodo todo.id) ] [ Html.span [] [ text todo.action ] ]
 
 
 

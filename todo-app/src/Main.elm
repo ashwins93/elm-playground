@@ -65,6 +65,7 @@ type Msg
     | Change String
     | KeyDown Int
     | ToggleTodo Int
+    | DeleteTodo Int
 
 
 update : Msg -> Model -> ( Model, Cmd msg )
@@ -95,11 +96,16 @@ update msg model =
             , Cmd.none
             )
 
+        DeleteTodo id ->
+            ( { model | todos = deleteTodo id model.todos }
+            , Cmd.none
+            )
+
 
 addTodo : String -> List Todo -> List Todo
 addTodo action todos =
     List.append todos
-        [ Todo (List.length todos) action False
+        [ Todo (nextId todos) action False
         ]
 
 
@@ -110,6 +116,24 @@ toggleTodo id todo =
 
     else
         todo
+
+
+deleteTodo : Int -> List Todo -> List Todo
+deleteTodo id todos =
+    List.filter ((/=) id << .id) todos
+
+
+nextId : List Todo -> Int
+nextId todos =
+    case todos of
+        [] ->
+            0
+
+        [ todo ] ->
+            todo.id + 1
+
+        _ :: xs ->
+            nextId xs
 
 
 
@@ -144,7 +168,13 @@ viewTodo todo =
         [ class className
         , onClick (ToggleTodo todo.id)
         ]
-        [ Html.span [] [ text todo.action ] ]
+        [ Html.span [ class "todo-text" ] [ text todo.action ]
+        , Html.span
+            [ class "todo-delete-btn"
+            , onClick (DeleteTodo todo.id)
+            ]
+            [ text "❌" ]
+        ]
 
 
 viewTodoInput : String -> Html Msg

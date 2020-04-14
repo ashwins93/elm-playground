@@ -35,19 +35,20 @@ body {
 .todo-item {
   padding: 20px 10px;
   cursor: pointer;
+  position: relative;
 }
 
 .todo-item:hover {
   background-color: rgba(255, 255, 255, 0.15);
 }
 
-.todo-item span {
+.todo-item .todo-text {
   display: inline-block;
   position: relative;
   transition: transform 0.3s;
 }
 
-.todo-item:hover span {
+.todo-item:hover .todo-text {
   transform: translateX(10px);
 }
 
@@ -59,7 +60,7 @@ body {
   opacity: 0.5;
 }
 
-.todo-item span::after {
+.todo-item .todo-text::after {
   content: "";
   display: block;
   width: 100%;
@@ -74,7 +75,7 @@ body {
   transform-origin: right;
 }
 
-.todo-item.complete span::after {
+.todo-item.complete .todo-text::after {
   transform: scaleX(1);
   transform-origin: left;
 }
@@ -96,4 +97,21 @@ body {
 
 .todo-input:focus {
   outline: none;
+}
+
+.todo-item .todo-delete-btn {
+  position: absolute;
+  right: 30px;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s;
+}
+
+.todo-item:hover .todo-delete-btn {
+  opacity: 0.6;
+  visibility: visible;
+}
+
+.todo-item:hover .todo-delete-btn:hover {
+  opacity: 1;
 }

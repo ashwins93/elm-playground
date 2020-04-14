@@ -1,10 +1,16 @@
 module Main exposing (..)
 
 import Browser
-import Html exposing (Html, button, div, h1, li, text, ul)
+import Html exposing (Attribute, Html, div, h1, input, li, text, ul)
 import Html.Attributes exposing (..)
-import Html.Events exposing (onClick, onInput)
+import Html.Events exposing (keyCode, on, onClick, onInput)
+import Json.Decode as Json
 import List
+
+
+onKeyDown : (Int -> Msg) -> Attribute Msg
+onKeyDown tagger =
+    on "keydown" (Json.map tagger keyCode)
 
 
 
@@ -56,6 +62,8 @@ init _ =
 
 type Msg
     = Show
+    | Change String
+    | KeyDown Int
     | ToggleTodo Int
 
 
@@ -65,10 +73,34 @@ update msg model =
         Show ->
             ( model, Cmd.none )
 
+        Change text ->
+            ( { model | input = text }
+            , Cmd.none
+            )
+
+        KeyDown code ->
+            if code == 13 then
+                ( { model
+                    | todos = addTodo model.input model.todos
+                    , input = ""
+                  }
+                , Cmd.none
+                )
+
+            else
+                ( model, Cmd.none )
+
         ToggleTodo id ->
             ( { model | todos = List.map (toggleTodo id) model.todos }
             , Cmd.none
             )
+
+
+addTodo : String -> List Todo -> List Todo
+addTodo action todos =
+    List.append todos
+        [ Todo (List.length todos) action False
+        ]
 
 
 toggleTodo : Int -> Todo -> Todo
@@ -88,13 +120,14 @@ view : Model -> Html Msg
 view model =
     div [ class "container" ]
         [ h1 [ class "heading" ] [ text "elm todo" ]
-        , viewTodoList model.todos
+        , viewTodoList model
         ]
 
 
-viewTodoList : List Todo -> Html Msg
-viewTodoList todos =
-    ul [ class "todo-list" ] (List.map viewTodo todos)
+viewTodoList : Model -> Html Msg
+viewTodoList model =
+    ul [ class "todo-list" ]
+        (viewTodoInput model.input :: List.map viewTodo model.todos)
 
 
 viewTodo : Todo -> Html Msg
@@ -107,7 +140,25 @@ viewTodo todo =
             else
                 "todo-item"
     in
-    li [ class className, onClick (ToggleTodo todo.id) ] [ Html.span [] [ text todo.action ] ]
+    li
+        [ class className
+        , onClick (ToggleTodo todo.id)
+        ]
+        [ Html.span [] [ text todo.action ] ]
+
+
+viewTodoInput : String -> Html Msg
+viewTodoInput inputVal =
+    div [ class "todo-input-wrapper " ]
+        [ input
+            [ placeholder "What's on your mind?"
+            , class "todo-input"
+            , onInput Change
+            , onKeyDown KeyDown
+            , value inputVal
+            ]
+            []
+        ]
 
 
 

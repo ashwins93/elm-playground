@@ -78,3 +78,22 @@ body {
   transform: scaleX(1);
   transform-origin: left;
 }
+
+.todo-input {
+  display: block;
+  width: 100%;
+  border: 0;
+  font-size: inherit;
+  font-family: inherit;
+  color: inherit;
+  padding: 20px 10px;
+  background-color: rgba(255, 255, 255, 0.4);
+}
+
+.todo-input::placeholder {
+  color: #888a8a;
+}
+
+.todo-input:focus {
+  outline: none;
+}
